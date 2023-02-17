@@ -13,14 +13,15 @@ class node_gyp(Generator):
     def get_build_requires_names(self):
         return [name for (name, _) in self.conanfile.build_requires]
 
+    #{% if header_only == True -%}
+    #"type": "<(library)",
+    #{%- endif %}
     @property
     def content(self):
         target_template = textwrap.dedent("""\
             {
                 "target_name": "{{dep}}",
-                {% if header_only == True -%}
                 "type": "<(library)",
-                {%- endif %}
                 "direct_dependent_settings": {
                     "include_dirs": [
                         {% for include_path in include_paths -%}
@@ -70,8 +71,8 @@ class node_gyp(Generator):
                     "dep": dep,
                     "libs": self.conanfile.deps_cpp_info[dep].libs,
                     "lib_paths": self.conanfile.deps_cpp_info[dep].lib_paths,
-                    "include_paths": self.conanfile.deps_cpp_info[dep].include_paths,
-                    "header_only": not 'header_only' in self.conanfile.options[dep]
+                    "include_paths": self.conanfile.deps_cpp_info[dep].include_paths
+                    # "header_only": 'header_only' in self.conanfile.options[dep]
                 }
                 t = Template(target_template)
                 sections.append(t.render(**info))
